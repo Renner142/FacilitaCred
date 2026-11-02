@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caderneta – gestão de empréstimos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="tema.css">
+</head>
+<body>
+
+  <p id="falha" class="falha" hidden>Não foi possível carregar o sistema. Verifique a internet e atualize a página.</p>
+
+  <!-- Tela de login -->
+  <div id="login" class="login" hidden>
+    <form id="form-login" class="login-caixa" autocomplete="on">
+      <h1>Entrar</h1>
+      <p class="sub">Acesse o sistema de empréstimos.</p>
+      <label>E-mail
+        <input name="email" type="email" autocomplete="username" required>
+      </label>
+      <label>Senha
+        <input name="senha" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="erro-login" class="erro" role="alert"></p>
+      <button class="primario" type="submit">Entrar</button>
+      <button class="link" type="button" id="esqueci">Esqueci minha senha</button>
+    </form>
+  </div>
+
+  <!-- Aplicativo (o menu é montado conforme as permissões do usuário) -->
+  <div id="app" hidden>
+    <header class="topo">
+      <div class="marca" id="marca"></div>
+      <nav id="nav" aria-label="Seções"></nav>
+      <div class="usuario">
+        <span id="quem"></span>
+        <button id="aparencia" class="peq">Aparência</button>
+        <button id="sair" class="peq">Sair</button>
+      </div>
+    </header>
+    <main id="main"></main>
+  </div>
+
+  <dialog id="dlg"></dialog>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <noscript>Ative o JavaScript para usar o sistema.</noscript>
+  <script>
+    window.addEventListener('error', function () { document.getElementById('falha').hidden = false; });
+    window.addEventListener('unhandledrejection', function () { document.getElementById('falha').hidden = false; });
+  </script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
