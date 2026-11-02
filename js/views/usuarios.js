@@ -18,7 +18,8 @@ views.usuarios = function renderUsuarios() {
       <td><select data-mudar="papel" data-id="${esc(u.id)}" ${protegido ? 'disabled' : ''} aria-label="Permissão de ${esc(u.nome)}" style="margin:0">
         ${papeisDisponiveis().map(([k, t]) => `<option value="${esc(k)}" ${u.papel === k ? 'selected' : ''}>${esc(t)}</option>`).join('')}
         ${papeisDisponiveis().some(([k]) => k === u.papel) ? '' : `<option selected>${esc(nomePapel(u.papel))}</option>`}</select></td>
-      <td><label class="check" style="margin:0"><input type="checkbox" data-mudar="ativo" data-id="${esc(u.id)}" ${u.ativo ? 'checked' : ''} ${protegido ? 'disabled' : ''}> Acesso liberado</label></td></tr>`;
+      <td><label class="check" style="margin:0"><input type="checkbox" data-mudar="ativo" data-id="${esc(u.id)}" ${u.ativo ? 'checked' : ''} ${protegido ? 'disabled' : ''}> Acesso liberado</label></td>
+      <td>${ehAdmin() && !protegido ? `<button class="peq perigo" data-acao="usuario-remover" data-id="${esc(u.id)}">Remover</button>` : ''}</td></tr>`;
   }).join('');
 
   const papeis = Object.entries(S.papeis).map(([id, p]) => {
@@ -31,7 +32,7 @@ views.usuarios = function renderUsuarios() {
 
   return `<h1>Usuários</h1>
   <div class="barra"><span class="espaco"></span><button class="primario" data-acao="novo-usuario">Novo usuário</button></div>
-  <div class="rolagem"><table><thead><tr><th>Usuário</th><th>Papel</th><th>Acesso</th></tr></thead><tbody>${linhas}</tbody></table></div>
+  <div class="rolagem"><table><thead><tr><th>Usuário</th><th>Papel</th><th>Acesso</th><th></th></tr></thead><tbody>${linhas}</tbody></table></div>
   <h2>Papéis e permissões</h2>
   <p class="ajuda">O Administrador sempre pode tudo. Crie quantos papéis quiser e escolha, um a um, o que cada papel pode fazer.${ehAdmin() ? '' : ' Só o administrador altera os papéis.'}</p>
   <ul class="lista-edit">${papeis}</ul>
@@ -44,6 +45,15 @@ mudancas.papel = async el => {
 };
 mudancas.ativo = async el => {
   try { await updateDoc(doc(db, 'usuarios', el.dataset.id), { ativo: el.checked }); log('usuario.acesso', `${el.dataset.id} ${el.checked ? 'liberado' : 'bloqueado'}`); toast(el.checked ? 'Acesso liberado.' : 'Acesso bloqueado.'); }
+  catch (e) { toast(msgErro(e)); }
+};
+
+
+acoes['usuario-remover'] = async ds => {
+  const u = S.usuarios.find(x => x.id === ds.id);
+  if (!u || !ehAdmin() || u.id === S.user.uid) return;
+  if (!confirm(`Remover ${u.nome}? A pessoa perde o acesso ao sistema na hora. O histórico dela na auditoria continua guardado.`)) return;
+  try { await deleteDoc(doc(db, 'usuarios', u.id)); log('usuario.remover', `${u.nome} (${u.email})`); toast('Usuário removido.'); }
   catch (e) { toast(msgErro(e)); }
 };
 
